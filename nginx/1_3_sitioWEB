@@ -1,0 +1,54 @@
+# Servir Contenido Estático con NGINX
+
+Una tarea importante del servidor web es servir archivos, como imágenes o páginas HTML estáticas. Implementaremos un ejemplo en el que, según la solicitud, los archivos se servirán desde diferentes directorios locales: /data/www (que puede contener archivos HTML) y /data/images (que contiene imágenes). Esto requerirá la edición del archivo de configuración y la configuración de un bloque de servidor dentro del bloque http con dos bloques de ubicación.
+
+Primero, crea el directorio /data/www y coloca un archivo index.html con cualquier contenido de texto en él. También crea el directorio /data/images y coloca algunas imágenes en él.
+
+A continuación, abre el archivo de configuración. El archivo de configuración predeterminado ya incluye varios ejemplos de bloques de servidor, en su mayoría comentados. Por ahora, comenta todos esos bloques y comienza un nuevo bloque de servidor:
+
+
+```nginx
+http {
+    server {
+    }
+}
+```
+Generalmente, el archivo de configuración puede incluir varios bloques de servidor diferenciados por los puertos en los que escuchan y por los nombres de servidor. Una vez que NGINX decide qué servidor procesa una solicitud, prueba el URI especificado en la cabecera de la solicitud con los parámetros de las directivas de ubicación definidas dentro del bloque de servidor.
+
+Agrega el siguiente bloque de ubicación al bloque de servidor:
+```nginx
+location / {
+    root /data/www;
+}
+```
+Este bloque de ubicación especifica el prefijo "/" en comparación con el URI de la solicitud. Para las solicitudes coincidentes, el URI se agregará al camino especificado en la directiva root, es decir, a /data/www, para formar el camino al archivo solicitado en el sistema de archivos local. Si hay varios bloques de ubicación coincidentes, NGINX selecciona el que tiene el prefijo más largo. El bloque de ubicación anterior proporciona el prefijo más corto, de longitud uno, por lo que solo se usará si todos los demás bloques de ubicación no proporcionan una coincidencia.
+
+A continuación, agrega el segundo bloque de ubicación:
+```nginx
+
+location /images/ {
+    root /data;
+}
+```
+Será una coincidencia para solicitudes que comiencen con /images/ (location / también coincide con tales solicitudes, pero tiene un prefijo más corto).
+
+La configuración resultante del bloque de servidor debería lucir así:
+```nginx
+server {
+    location / {
+        root /data/www;
+    }
+
+    location /images/ {
+        root /data;
+    }
+}
+```
+Esta ya es una configuración de trabajo para un servidor que escucha en el puerto estándar 80 y es accesible en la máquina local en http://localhost/. En respuesta a solicitudes con URIs que comienzan con /images/, el servidor enviará archivos desde el directorio /data/images. Por ejemplo, en respuesta a la solicitud http://localhost/images/example.png, NGINX enviará el archivo /data/images/example.png. Si dicho archivo no existe, NGINX enviará una respuesta indicando el error 404. Las solicitudes con URIs que no comienzan con /images/ se asignarán al directorio /data/www. Por ejemplo, en respuesta a la solicitud http://localhost/some/example.html, NGINX enviará el archivo /data/www/some/example.html.
+
+Para aplicar la nueva configuración, inicia NGINX si aún no está en funcionamiento o envía la señal de recarga al proceso principal de NGINX, ejecutando:
+```sh
+nginx -s reload
+```
+En caso de que algo no funcione como se espera, puedes intentar encontrar la razón en los archivos access.log y error.log en el directorio /usr/local/nginx/logs o /var/log/nginx.
+
