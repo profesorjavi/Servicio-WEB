@@ -1,5 +1,5 @@
 # Servicio-WEB
-
+1. HTTP-HTTPS
 1. [apache 2.4](https://profesorjavi.github.io/curso_apache24/)
-2. [nginx](./nginx/readme.md)
-3. [AWS](./aws/readme.md)
+1. [nginx](./nginx/readme.md)
+1. [AWS](./aws/readme.md)
