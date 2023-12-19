@@ -1,0 +1,42 @@
+# Configuración y Operación de NGINX
+
+La forma en que NGINX y sus módulos funcionan se determina en el archivo de configuración. De manera predeterminada, el archivo de configuración se llama `nginx.conf` y se encuentra en el directorio `/usr/local/nginx/conf`, `/etc/nginx` o `/usr/local/etc/nginx`.
+
+## Iniciar, Detener y Recargar la Configuración
+
+Para iniciar NGINX, ejecuta el archivo ejecutable. Una vez que NGINX está en funcionamiento, se puede controlar invocando el ejecutable con el parámetro `-s`. Usa la siguiente sintaxis:
+
+```bash
+nginx -s señal
+```
+Donde la señal puede ser una de las siguientes:
+
+* stop — apagado rápido
+* quit — apagado elegante
+* reload — recargar el archivo de configuración
+* reopen — volver a abrir los archivos de registro
+
+Por ejemplo, para detener los procesos de NGINX esperando a que los procesos del trabajador terminen de servir las solicitudes actuales, se puede ejecutar el siguiente comando:
+```bash
+nginx -s quit
+```
+Este comando debe ejecutarse bajo el mismo usuario que inició NGINX.
+
+Los cambios realizados en el archivo de configuración no se aplicarán hasta que se envíe el comando para recargar la configuración a NGINX o se reinicie. Para recargar la configuración, ejecuta:
+```bash
+nginx -s reload
+```
+Recuerda que cualquier cambio en la configuración solo se reflejará después de recargar o reiniciar NGINX.
+Una vez que el proceso principal recibe la señal para recargar la configuración, verifica la validez sintáctica del nuevo archivo de configuración e intenta aplicar la configuración proporcionada en él. Si tiene éxito, el proceso principal inicia nuevos procesos de trabajador y envía mensajes a los antiguos procesos de trabajador solicitándoles que se apaguen. En caso contrario, el proceso principal deshace los cambios y continúa trabajando con la antigua configuración.
+
+Los antiguos procesos de trabajador, al recibir la orden de apagado, dejan de aceptar nuevas conexiones y continúan atendiendo las solicitudes actuales hasta que todas estas sean atendidas. Después de eso, los antiguos procesos de trabajador se cierran.
+
+
+
+
+
+
+
+
+
+
